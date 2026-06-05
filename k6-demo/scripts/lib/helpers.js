@@ -7,6 +7,7 @@ import { Gauge } from 'k6/metrics';
 
 export const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
 export const ATTENDEE = __ENV.ATTENDEE || 'anonymous';
+export const AI_URL   = __ENV.AI_URL   || 'http://localhost:4000';
 
 // Loud warning — without ATTENDEE every result on Grafana is unlabelled
 if (!__ENV.ATTENDEE && __VU <= 1) {
@@ -79,6 +80,21 @@ export function recordDegradation() {
       dbPoolWaitingGauge.add(body.db_pool.waiting);
     }
   }
+}
+
+// Called from each script's handleSummary(). POSTs the summary to the AI service
+// so results appear automatically in the Analyse tab, then saves summary.json locally.
+export function submitSummary(data, testType) {
+  try {
+    http.post(
+      `${AI_URL}/submit`,
+      JSON.stringify({ summary: data, attendee: ATTENDEE, testType }),
+      { headers: HEADERS, timeout: '10s' }
+    );
+  } catch (_) {
+    // Best effort — don't fail if the AI service is unreachable
+  }
+  return { 'summary.json': JSON.stringify(data, null, 2) };
 }
 
 // Marks a test event in Prometheus so Grafana can show annotation lines.

@@ -20,7 +20,7 @@ import { check, sleep } from 'k6';
 import {
   BASE_URL, ATTENDEE, HEADERS, SEARCH_TERMS, PROMO_CODES,
   ensureAuth, randomSessionId, randomProductId, randomItem,
-  PAYMENT_TOKEN, recordDegradation, annotate,
+  PAYMENT_TOKEN, recordDegradation, annotate, submitSummary,
 } from './lib/helpers.js';
 
 export const options = {
@@ -120,3 +120,4 @@ export default function () {
 
 export function setup()    { annotate('Load Test Started',  '02-load'); }
 export function teardown() { annotate('Load Test Finished', '02-load'); }
+export function handleSummary(data) { return submitSummary(data, '02-load'); }

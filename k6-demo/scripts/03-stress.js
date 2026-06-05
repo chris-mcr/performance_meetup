@@ -15,7 +15,7 @@
 
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { BASE_URL, ATTENDEE, randomSessionId, randomProductId, PAYMENT_TOKEN, recordDegradation, annotate } from './lib/helpers.js';
+import { BASE_URL, ATTENDEE, randomSessionId, randomProductId, PAYMENT_TOKEN, recordDegradation, annotate, submitSummary } from './lib/helpers.js';
 
 export const options = {
   stages: [
@@ -63,3 +63,4 @@ export default function () {
 
 export function setup()    { annotate('Stress Test Started',  '03-stress'); }
 export function teardown() { annotate('Stress Test Finished', '03-stress'); }
+export function handleSummary(data) { return submitSummary(data, '03-stress'); }

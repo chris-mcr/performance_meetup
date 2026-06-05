@@ -12,7 +12,7 @@
 
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { BASE_URL, ATTENDEE, PAYMENT_TOKEN, annotate } from './lib/helpers.js';
+import { BASE_URL, ATTENDEE, PAYMENT_TOKEN, annotate, submitSummary } from './lib/helpers.js';
 
 // 1 VU for 30 seconds — just enough to confirm every endpoint works
 export const options = {
@@ -153,3 +153,4 @@ export default function () {
 
 export function setup()    { annotate('Smoke Started',  '01-smoke'); }
 export function teardown() { annotate('Smoke Finished', '01-smoke'); }
+export function handleSummary(data) { return submitSummary(data, '01-smoke'); }
