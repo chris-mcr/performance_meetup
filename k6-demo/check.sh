@@ -35,19 +35,17 @@ check_service() {
 }
 
 echo ""
-printf "Checking k6 installation...\n\n"
+printf "Checking runner...\n\n"
 
-if ! command -v k6 &>/dev/null; then
-  printf "  %s  k6 is not installed\n\n" "$(red "[FAIL]")"
-  printf "  Install it first:\n"
-  printf "    Mac:     %s\n" "$(yellow "brew install k6")"
-  printf "    Windows: %s\n" "$(yellow "winget install k6 --source winget")"
-  printf "    Linux:   https://k6.io/docs/get-started/installation/\n\n"
-  exit 1
+if command -v k6 &>/dev/null; then
+  K6_VER=$(k6 version 2>&1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+  printf "  %s  k6 %s\n" "$(green "[ OK ]")" "$K6_VER"
+elif command -v docker &>/dev/null; then
+  printf "  %s  Docker found — use %s to run tests\n" "$(green "[ OK ]")" "$(yellow "./run.sh")"
+else
+  printf "  %s  Neither k6 nor Docker found\n" "$(red "[WARN]")"
+  printf "       Install one: brew install k6  or  https://www.docker.com/products/docker-desktop/\n"
 fi
-
-K6_VER=$(k6 version 2>&1 | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1)
-printf "  %s  k6 %s\n" "$(green "[ OK ]")" "$K6_VER"
 
 echo ""
 printf "Checking services at %s...\n\n" "$(yellow "$DOMAIN")"

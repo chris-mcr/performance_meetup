@@ -2,7 +2,11 @@
 
 A hands-on load testing lab. Run real k6 scripts against a live API and watch the system degrade in real time on a shared Grafana dashboard.
 
-## Prerequisites — Install k6
+## Prerequisites
+
+You need either **k6** or **Docker** — pick whichever is easier.
+
+### Option A — Install k6
 
 | OS | Command |
 |----|---------|
@@ -12,42 +16,9 @@ A hands-on load testing lab. Run real k6 scripts against a live API and watch th
 
 Verify: `k6 version`
 
-### Alternative — Run k6 via Docker
+### Option B — Docker (no k6 needed)
 
-If you can't install k6, use the official Docker image instead. You need [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
-
-Run this from inside the `k6-demo/` directory. It mounts the current folder into the container so the scripts and shared library are both available.
-
-**Mac / Linux:**
-```bash
-docker run --rm \
-  -v $(pwd):/k6 \
-  -e BASE_URL=https://k6-app.mcr-test.com \
-  -e ATTENDEE=yourname \
-  grafana/k6 run /k6/scripts/01-smoke.js
-```
-
-**Windows (PowerShell):**
-```powershell
-docker run --rm `
-  -v "${PWD}:/k6" `
-  -e BASE_URL=https://k6-app.mcr-test.com `
-  -e ATTENDEE=yourname `
-  grafana/k6 run /k6/scripts/01-smoke.js
-```
-
-For tests that push to Grafana, add the Prometheus env var and output flag the same way as the native k6 commands — just insert them before `grafana/k6`:
-
-```bash
-docker run --rm \
-  -v $(pwd):/k6 \
-  -e BASE_URL=https://k6-app.mcr-test.com \
-  -e ATTENDEE=yourname \
-  -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mcrtest2026@prometheus.mcr-test.com/api/v1/write \
-  grafana/k6 run --out experimental-prometheus-rw /k6/scripts/02-load.js
-```
-
-Change the script filename (`02-load.js`, `03-stress.js`, `04-combined.js`) to run different tests.
+Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and make sure it's running. That's it — the `run.sh` wrapper handles the rest.
 
 ## Step 1 — Set Your Name
 
@@ -63,9 +34,11 @@ Confirm all services are reachable before you start:
 bash check.sh mcr-test.com
 ```
 
-You should see four `[ OK ]` lines. If anything fails, tell the presenter.
+You should see `[ OK ]` for your runner (k6 or Docker) and four `[ OK ]` service lines. If anything fails, tell the presenter.
 
 ## Step 3 — Run the Scripts
+
+All commands below use `run.sh`, which works whether you have k6 or Docker. Run them from inside the `k6-demo/` directory.
 
 Replace `yourname` with your chosen name.
 
@@ -74,10 +47,7 @@ Replace `yourname` with your chosen name.
 Verifies every endpoint responds correctly. Run this first.
 
 ```bash
-k6 run \
-  -e BASE_URL=https://k6-app.mcr-test.com \
-  -e ATTENDEE=yourname \
-  scripts/01-smoke.js
+./run.sh smoke yourname
 ```
 
 Expected: all checks pass, no errors. Nothing appears on Grafana — this is intentional.
@@ -89,12 +59,7 @@ Expected: all checks pass, no errors. Nothing appears on Grafana — this is int
 Simulates a realistic Black Friday surge. Thresholds will turn red during the surge — that's the point.
 
 ```bash
-k6 run \
-  -e BASE_URL=https://k6-app.mcr-test.com \
-  -e ATTENDEE=yourname \
-  -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mcrtest2026@prometheus.mcr-test.com/api/v1/write \
-  --out experimental-prometheus-rw \
-  scripts/02-load.js
+./run.sh load yourname
 ```
 
 | Time | What happens |
@@ -112,12 +77,7 @@ k6 run \
 Ramps aggressively to 100 VUs. No thresholds — just observe where things fall apart.
 
 ```bash
-k6 run \
-  -e BASE_URL=https://k6-app.mcr-test.com \
-  -e ATTENDEE=yourname \
-  -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mcrtest2026@prometheus.mcr-test.com/api/v1/write \
-  --out experimental-prometheus-rw \
-  scripts/03-stress.js
+./run.sh stress yourname
 ```
 
 | Time | What happens |
@@ -135,12 +95,7 @@ k6 run \
 Three concurrent user types with staggered starts. Watch Grafana tell a story as each group joins.
 
 ```bash
-k6 run \
-  -e BASE_URL=https://k6-app.mcr-test.com \
-  -e ATTENDEE=yourname \
-  -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mcrtest2026@prometheus.mcr-test.com/api/v1/write \
-  --out experimental-prometheus-rw \
-  scripts/04-combined.js
+./run.sh combined yourname
 ```
 
 | Time | Who joins |
@@ -150,6 +105,10 @@ k6 run \
 | 2:00 | Checkout heavy joins (HIGH/CRITICAL, errors spike) |
 | 3:30 | Cart heavy exits |
 | 4:00 | Browsing exits, done |
+
+### Running without run.sh (Windows / manual)
+
+If you're on Windows PowerShell or prefer explicit commands, see the [manual commands](#manual-commands) section below.
 
 ## Scripts
 
@@ -174,9 +133,42 @@ k6 run \
 
 After a k6 run, copy the JSON printed at the end of your terminal and paste it into the **Analyse Results** tab at https://k6-ai.mcr-test.com. You'll get a verdict, findings, and a Slack-ready postmortem.
 
+## Manual commands
+
+If you can't use `run.sh` (e.g. Windows PowerShell without WSL), run the commands directly.
+
+**Native k6:**
+```bash
+k6 run -e BASE_URL=https://k6-app.mcr-test.com -e ATTENDEE=yourname scripts/01-smoke.js
+```
+
+**Docker (Mac/Linux):**
+```bash
+docker run --rm \
+  -v $(pwd):/k6 \
+  -e BASE_URL=https://k6-app.mcr-test.com \
+  -e ATTENDEE=yourname \
+  grafana/k6 run /k6/scripts/01-smoke.js
+```
+
+**Docker (Windows PowerShell):**
+```powershell
+docker run --rm `
+  -v "${PWD}:/k6" `
+  -e BASE_URL=https://k6-app.mcr-test.com `
+  -e ATTENDEE=yourname `
+  grafana/k6 run /k6/scripts/01-smoke.js
+```
+
+For tests 02–04, add the Prometheus flags before `grafana/k6` (Docker) or before the script path (native):
+```bash
+-e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mcrtest2026@prometheus.mcr-test.com/api/v1/write \
+--out experimental-prometheus-rw   # native: after k6 run | docker: after grafana/k6 run
+```
+
 ## Troubleshooting
 
-**`k6: command not found`** — k6 is not installed or not on your PATH. Reinstall and open a new terminal, or use the Docker alternative in the Prerequisites section.
+**`k6: command not found`** — k6 is not installed. Use `run.sh` instead — it falls back to Docker automatically if k6 isn't found.
 
 **Threshold errors in the load test** — expected and intentional. The thresholds in `02-load.js` are set to fail during the surge.
 
