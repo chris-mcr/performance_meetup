@@ -25,13 +25,19 @@ import {
 
 export const options = {
   tags: { attendee: ATTENDEE },
-  stages: [
-    { duration: '30s', target: 10 },  // Ramp up: normal pre-sale traffic
-    { duration: '2m',  target: 10 },  // Steady state: baseline load
-    { duration: '30s', target: 30 },  // Surge: Black Friday doors open
-    { duration: '1m',  target: 30 },  // Sustained pressure: peak shopping
-    { duration: '20s', target: 0  },  // Ramp down
-  ],
+  scenarios: {
+    load_test: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '30s', target: 10 },  // Ramp up: normal pre-sale traffic
+        { duration: '2m',  target: 10 },  // Steady state: baseline load
+        { duration: '30s', target: 30 },  // Surge: Black Friday doors open
+        { duration: '1m',  target: 30 },  // Sustained pressure: peak shopping
+        { duration: '20s', target: 0  },  // Ramp down
+      ],
+      tags: { scenario: 'load_test' },
+    },
+  },
   // These thresholds are intentionally aggressive — they WILL turn red during
   // the surge so the room can see real failure, not just yellow warnings.
   thresholds: {

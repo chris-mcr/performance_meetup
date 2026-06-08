@@ -18,13 +18,19 @@ import { check, sleep } from 'k6';
 import { BASE_URL, ATTENDEE, randomSessionId, randomProductId, PAYMENT_TOKEN, recordDegradation, annotate, submitSummary } from './lib/helpers.js';
 
 export const options = {
-  stages: [
-    { duration: '30s', target: 20  }, // Quick ramp to establish baseline
-    { duration: '30s', target: 50  }, // Into degradation territory
-    { duration: '30s', target: 100 }, // Critical load — find the wall
-    { duration: '1m',  target: 100 }, // Hold at breaking point
-    { duration: '30s', target: 0   }, // Emergency shutdown
-  ],
+  scenarios: {
+    stress_test: {
+      executor: 'ramping-vus',
+      stages: [
+        { duration: '30s', target: 20  }, // Quick ramp to establish baseline
+        { duration: '30s', target: 50  }, // Into degradation territory
+        { duration: '30s', target: 100 }, // Critical load — find the wall
+        { duration: '1m',  target: 100 }, // Hold at breaking point
+        { duration: '30s', target: 0   }, // Emergency shutdown
+      ],
+      tags: { scenario: 'stress_test' },
+    },
+  },
   // No thresholds — we want to observe, not pass/fail
   tags: { attendee: ATTENDEE },
 };
