@@ -12,6 +12,43 @@ A hands-on load testing lab. Run real k6 scripts against a live API and watch th
 
 Verify: `k6 version`
 
+### Alternative — Run k6 via Docker
+
+If you can't install k6, use the official Docker image instead. You need [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+
+Run this from inside the `k6-demo/` directory. It mounts the current folder into the container so the scripts and shared library are both available.
+
+**Mac / Linux:**
+```bash
+docker run --rm \
+  -v $(pwd):/k6 \
+  -e BASE_URL=https://k6-app.mcr-test.com \
+  -e ATTENDEE=yourname \
+  grafana/k6 run /k6/scripts/01-smoke.js
+```
+
+**Windows (PowerShell):**
+```powershell
+docker run --rm `
+  -v "${PWD}:/k6" `
+  -e BASE_URL=https://k6-app.mcr-test.com `
+  -e ATTENDEE=yourname `
+  grafana/k6 run /k6/scripts/01-smoke.js
+```
+
+For tests that push to Grafana, add the Prometheus env var and output flag the same way as the native k6 commands — just insert them before `grafana/k6`:
+
+```bash
+docker run --rm \
+  -v $(pwd):/k6 \
+  -e BASE_URL=https://k6-app.mcr-test.com \
+  -e ATTENDEE=yourname \
+  -e K6_PROMETHEUS_RW_SERVER_URL=https://prometheus.mcr-test.com/api/v1/write \
+  grafana/k6 run --out experimental-prometheus-rw /k6/scripts/02-load.js
+```
+
+Change the script filename (`02-load.js`, `03-stress.js`, `04-combined.js`) to run different tests.
+
 ## Step 1 — Set Your Name
 
 Every k6 command needs `-e ATTENDEE=yourname`. Without it your results show up as `anonymous` on Grafana and get mixed in with everyone else's.
@@ -139,7 +176,7 @@ After a k6 run, copy the JSON printed at the end of your terminal and paste it i
 
 ## Troubleshooting
 
-**`k6: command not found`** — k6 is not installed or not on your PATH. Reinstall and open a new terminal.
+**`k6: command not found`** — k6 is not installed or not on your PATH. Reinstall and open a new terminal, or use the Docker alternative in the Prerequisites section.
 
 **Threshold errors in the load test** — expected and intentional. The thresholds in `02-load.js` are set to fail during the surge.
 
