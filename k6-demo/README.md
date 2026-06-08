@@ -38,7 +38,7 @@ You should see `[ OK ]` for your runner (k6 or Docker) and four `[ OK ]` service
 
 ## Step 3 — Run the Scripts
 
-All commands below use `run.sh`, which works whether you have k6 or Docker. Run them from inside the `k6-demo/` directory.
+All commands below use `run.sh`, which works whether you have k6 or Docker. Run them from inside the `k6-demo/` directory. If you get a "permission denied" error, prefix with `bash`: `bash run.sh smoke yourname`.
 
 Replace `yourname` with your chosen name.
 
@@ -47,7 +47,7 @@ Replace `yourname` with your chosen name.
 Verifies every endpoint responds correctly. Run this first.
 
 ```bash
-./run.sh smoke yourname
+bash run.sh smoke yourname
 ```
 
 Expected: all checks pass, no errors. Nothing appears on Grafana — this is intentional.
@@ -59,7 +59,7 @@ Expected: all checks pass, no errors. Nothing appears on Grafana — this is int
 Simulates a realistic Black Friday surge. Thresholds will turn red during the surge — that's the point.
 
 ```bash
-./run.sh load yourname
+bash run.sh load yourname
 ```
 
 | Time | What happens |
@@ -77,7 +77,7 @@ Simulates a realistic Black Friday surge. Thresholds will turn red during the su
 Ramps aggressively to 100 VUs. No thresholds — just observe where things fall apart.
 
 ```bash
-./run.sh stress yourname
+bash run.sh stress yourname
 ```
 
 | Time | What happens |
@@ -95,7 +95,7 @@ Ramps aggressively to 100 VUs. No thresholds — just observe where things fall 
 Three concurrent user types with staggered starts. Watch Grafana tell a story as each group joins.
 
 ```bash
-./run.sh combined yourname
+bash run.sh combined yourname
 ```
 
 | Time | Who joins |
@@ -168,7 +168,7 @@ For tests 02–04, add the Prometheus flags before `grafana/k6` (Docker) or befo
 
 ## Troubleshooting
 
-**`k6: command not found`** — k6 is not installed. Use `run.sh` instead — it falls back to Docker automatically if k6 isn't found.
+**`k6: command not found`** — k6 is not installed. Use `bash run.sh` instead — it falls back to Docker automatically if k6 isn't found.
 
 **Threshold errors in the load test** — expected and intentional. The thresholds in `02-load.js` are set to fail during the surge.
 

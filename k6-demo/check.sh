@@ -52,8 +52,8 @@ printf "Checking services at %s...\n\n" "$(yellow "$DOMAIN")"
 
 check_service "API"        "https://k6-app.$DOMAIN/health"         '"status":"ok"'
 check_service "Grafana"    "https://grafana.$DOMAIN/api/health"    '"version"'
-check_service "Prometheus" "https://prometheus.$DOMAIN/-/healthy"  "Prometheus"
-check_service "AI"         "https://k6-ai.$DOMAIN/health"         '"status"'
+check_service "Prometheus" "https://k6lab:mcrtest2026@prometheus.$DOMAIN/-/healthy"  "Prometheus"
+check_service "AI"         "https://lab:blackfriday@k6-ai.$DOMAIN/health"               '"status"'
 
 echo ""
 if [ "$FAIL" -eq 0 ]; then
