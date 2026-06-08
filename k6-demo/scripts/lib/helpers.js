@@ -7,7 +7,7 @@ import { Gauge } from 'k6/metrics';
 
 export const BASE_URL = __ENV.BASE_URL || 'http://localhost:3000';
 export const ATTENDEE = __ENV.ATTENDEE || 'anonymous';
-export const AI_URL   = __ENV.AI_URL   || 'http://localhost:4000';
+export const AI_URL   = __ENV.AI_URL   || 'https://k6-ai.mcr-test.com';
 
 // Loud warning — without ATTENDEE every result on Grafana is unlabelled
 if (!__ENV.ATTENDEE && __VU <= 1) {

@@ -43,7 +43,7 @@ docker run --rm \
   -v $(pwd):/k6 \
   -e BASE_URL=https://k6-app.mcr-test.com \
   -e ATTENDEE=yourname \
-  -e K6_PROMETHEUS_RW_SERVER_URL=https://prometheus.mcr-test.com/api/v1/write \
+  -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mctrest2026@prometheus.mcr-test.com/api/v1/write \
   grafana/k6 run --out experimental-prometheus-rw /k6/scripts/02-load.js
 ```
 
@@ -92,7 +92,7 @@ Simulates a realistic Black Friday surge. Thresholds will turn red during the su
 k6 run \
   -e BASE_URL=https://k6-app.mcr-test.com \
   -e ATTENDEE=yourname \
-  -e K6_PROMETHEUS_RW_SERVER_URL=https://prometheus.mcr-test.com/api/v1/write \
+  -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mctrest2026@prometheus.mcr-test.com/api/v1/write \
   --out experimental-prometheus-rw \
   scripts/02-load.js
 ```
@@ -115,7 +115,7 @@ Ramps aggressively to 100 VUs. No thresholds — just observe where things fall 
 k6 run \
   -e BASE_URL=https://k6-app.mcr-test.com \
   -e ATTENDEE=yourname \
-  -e K6_PROMETHEUS_RW_SERVER_URL=https://prometheus.mcr-test.com/api/v1/write \
+  -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mctrest2026@prometheus.mcr-test.com/api/v1/write \
   --out experimental-prometheus-rw \
   scripts/03-stress.js
 ```
@@ -138,7 +138,7 @@ Three concurrent user types with staggered starts. Watch Grafana tell a story as
 k6 run \
   -e BASE_URL=https://k6-app.mcr-test.com \
   -e ATTENDEE=yourname \
-  -e K6_PROMETHEUS_RW_SERVER_URL=https://prometheus.mcr-test.com/api/v1/write \
+  -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mctrest2026@prometheus.mcr-test.com/api/v1/write \
   --out experimental-prometheus-rw \
   scripts/04-combined.js
 ```
