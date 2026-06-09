@@ -99,7 +99,7 @@ export default function () {
   });
 
   // --- View cart ---
-  const cartView = http.get(`${BASE_URL}/cart/${sessionId}`);
+  const cartView = http.get(`${BASE_URL}/cart/${sessionId}`, { tags: { name: 'GET /cart/:sessionId' } });
   check(cartView, {
     'cart view: status 200':   r => r.status === 200,
     'cart view: has items':    r => JSON.parse(r.body).item_count > 0,
@@ -140,7 +140,7 @@ export default function () {
   // --- Order status ---
   if (checkoutRes.status === 200) {
     const orderId = JSON.parse(checkoutRes.body).order_id;
-    const order = http.get(`${BASE_URL}/orders/${orderId}`);
+    const order = http.get(`${BASE_URL}/orders/${orderId}`, { tags: { name: 'GET /orders/:orderId' } });
     check(order, {
       'order status: 200':       r => r.status === 200,
       'order status: confirmed': r => JSON.parse(r.body).status === 'confirmed',

@@ -80,15 +80,15 @@ export function browse() {
   check(cats, { 'categories: 200': r => r.status === 200 });
   sleep(Math.random() * 0.5 + 0.3);
 
-  const search = http.get(`${BASE_URL}/search?q=${randomItem(SEARCH_TERMS)}&sort=rating`);
+  const search = http.get(`${BASE_URL}/search?q=${randomItem(SEARCH_TERMS)}&sort=rating`, { tags: { name: 'GET /search' } });
   check(search, { 'search: ok': r => r.status === 200 || r.status === 503 });
   sleep(Math.random() * 0.5 + 0.3);
 
   const productId = randomProductId();
-  http.get(`${BASE_URL}/products/${productId}`);
+  http.get(`${BASE_URL}/products/${productId}`, { tags: { name: 'GET /products/:id' } });
   sleep(0.3);
 
-  http.get(`${BASE_URL}/products/${productId}/related`);
+  http.get(`${BASE_URL}/products/${productId}/related`, { tags: { name: 'GET /products/:id/related' } });
   sleep(Math.random() * 0.5 + 0.3);
 
   recordDegradation();
@@ -100,7 +100,7 @@ export function addToCart() {
   const sessionId = randomSessionId();
 
   const productId = randomProductId();
-  http.get(`${BASE_URL}/products/${productId}`);
+  http.get(`${BASE_URL}/products/${productId}`, { tags: { name: 'GET /products/:id' } });
   sleep(0.2);
 
   const cartAdd = http.post(
@@ -111,7 +111,7 @@ export function addToCart() {
   check(cartAdd, { 'cart: 200': r => r.status === 200 });
   sleep(0.2);
 
-  http.get(`${BASE_URL}/cart/${sessionId}`);
+  http.get(`${BASE_URL}/cart/${sessionId}`, { tags: { name: 'GET /cart/:sessionId' } });
   sleep(0.2);
 
   // Always try a promo code — drives promo service load
@@ -148,7 +148,7 @@ export function fullJourney() {
 
   if (checkout.status === 200) {
     const orderId = JSON.parse(checkout.body).order_id;
-    http.get(`${BASE_URL}/orders/${orderId}`);
+    http.get(`${BASE_URL}/orders/${orderId}`, { tags: { name: 'GET /orders/:orderId' } });
   }
 
   sleep(Math.random() * 0.3 + 0.2);

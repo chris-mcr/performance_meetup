@@ -60,18 +60,18 @@ export default function () {
 
   // Step 3: Search for a product
   const term = randomItem(SEARCH_TERMS);
-  const search = http.get(`${BASE_URL}/search?q=${term}&sort=rating`);
+  const search = http.get(`${BASE_URL}/search?q=${term}&sort=rating`, { tags: { name: 'GET /search' } });
   check(search, { 'search: 200 or 503': r => r.status === 200 || r.status === 503 });
   sleep(Math.random() * 0.5 + 0.3);
 
   // Step 4: View a product detail page
   const productId = randomProductId();
-  const product = http.get(`${BASE_URL}/products/${productId}`);
+  const product = http.get(`${BASE_URL}/products/${productId}`, { tags: { name: 'GET /products/:id' } });
   check(product, { 'product: 200': r => r.status === 200 });
   sleep(Math.random() * 0.3 + 0.2);
 
   // Step 5: Check related products (recommendation engine)
-  const related = http.get(`${BASE_URL}/products/${productId}/related`);
+  const related = http.get(`${BASE_URL}/products/${productId}/related`, { tags: { name: 'GET /products/:id/related' } });
   check(related, { 'related: 200': r => r.status === 200 });
   sleep(Math.random() * 0.3 + 0.2);
 
@@ -88,7 +88,7 @@ export default function () {
   sleep(Math.random() * 0.3 + 0.2);
 
   // Step 7: View cart
-  http.get(`${BASE_URL}/cart/${sessionId}`);
+  http.get(`${BASE_URL}/cart/${sessionId}`, { tags: { name: 'GET /cart/:sessionId' } });
   sleep(0.2);
 
   // Step 8: Apply promo code (30% of shoppers try a code)
@@ -116,7 +116,7 @@ export default function () {
   // Step 10: Poll order status (only if checkout succeeded)
   if (checkout.status === 200) {
     const orderId = JSON.parse(checkout.body).order_id;
-    const order = http.get(`${BASE_URL}/orders/${orderId}`);
+    const order = http.get(`${BASE_URL}/orders/${orderId}`, { tags: { name: 'GET /orders/:orderId' } });
     check(order, { 'order status: 200': r => r.status === 200 });
   }
 

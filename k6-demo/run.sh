@@ -26,7 +26,7 @@ case "$1" in
     ;;
 esac
 
-if command -v k6 &>/dev/null; then
+if [[ "${FORCE_DOCKER:-}" != "1" ]] && command -v k6 &>/dev/null; then
   ARGS=(-e "BASE_URL=$BASE_URL" -e "ATTENDEE=$ATTENDEE")
   if [[ "$PUSH" == "true" ]]; then
     ARGS+=(-e "K6_PROMETHEUS_RW_SERVER_URL=$PROM_URL" --out experimental-prometheus-rw)

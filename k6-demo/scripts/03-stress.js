@@ -42,7 +42,7 @@ export default function () {
   // Hit every endpoint so all degradation tiers are visible on the dashboard
   http.get(`${BASE_URL}/products`);
 
-  http.get(`${BASE_URL}/products/${randomProductId()}`);
+  http.get(`${BASE_URL}/products/${randomProductId()}`, { tags: { name: 'GET /products/:id' } });
 
   http.post(
     `${BASE_URL}/cart`,
