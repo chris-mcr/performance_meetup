@@ -196,6 +196,75 @@ bash run.sh combined yourname
 
 ---
 
+## 📡 API Reference
+
+The full interactive Swagger docs are available at [k6-app.mcr-test.com/docs](https://k6-app.mcr-test.com/docs). Below is a quick-reference summary.
+
+### Load degradation tiers
+
+The API deliberately degrades as request rate climbs. Check `/health` to see the current tier.
+
+| Tier | RPS | What happens |
+|------|-----|-------------|
+| `none` | 0–40 | Normal response times |
+| `low` | 40–90 | +100–300ms on cart, checkout, search, auth |
+| `high` | 90–160 | +500ms–1s on cart/checkout, 5% checkout errors, promo service flaky |
+| `critical` | 160+ | +1.5–3s delays, 20% checkout errors, 10% of `/products` requests return 503, search/promo unstable |
+
+---
+
+### Auth
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/auth/login` | Accepts any email/password — returns a demo token, no validation on subsequent requests |
+
+**Request body:** `{ "email": "shopper@example.com", "password": "password123" }`
+
+---
+
+### Catalogue
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/categories` | List all categories |
+| `GET` | `/categories/{id}` | Get a single category (`electronics`, `computing`, `home`, `audio`) |
+| `GET` | `/products` | List all 20 products — returns 503 under critical load |
+| `GET` | `/products/{id}` | Single product (id 1–20) |
+| `GET` | `/products/{id}/related` | Up to 4 related products — adds 150ms baseline (simulates recommendation engine) |
+| `GET` | `/search?q=&category=&sort=&limit=` | Full-text search — adds 100ms baseline (simulates Elasticsearch), 503 at critical RPS |
+
+---
+
+### Commerce
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `POST` | `/cart` | Add item to cart — degrades at 10+ RPS |
+| `GET` | `/cart/{session_id}` | View cart contents |
+| `POST` | `/cart/promo` | Apply promo code — valid codes: `BLACKFRIDAY20` (20% off), `SAVE10` (10% off), `VIP50` (50% off). Invalid codes return `200` with `valid: false` |
+| `POST` | `/checkout` | Process checkout — adds 200ms baseline, returns 500 under load, clears cart on success |
+
+---
+
+### Orders
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/orders` | Last 20 orders — filter by `?session_id=`, up to `?limit=100` |
+| `GET` | `/orders/{id}` | Single order status — adds 50ms baseline, slows significantly at high/critical load |
+
+---
+
+### System
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/health` | Current status: uptime, RPS, degradation level, error rate |
+| `POST` | `/reset` | Zero the sliding window — system returns to `none` tier immediately |
+
+---
+
 ## 🤖 AI Analysis
 
 After any test run, your results are **automatically posted** to the AI service — just visit [k6-ai.mcr-test.com](https://k6-ai.mcr-test.com) and look for your attendee name in the **Analyse Results** tab.
