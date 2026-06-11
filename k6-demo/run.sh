@@ -12,8 +12,10 @@ if [[ $# -lt 2 ]]; then
 fi
 
 ATTENDEE="$2"
-BASE_URL="https://k6-app.mcr-test.com"
-PROM_URL="https://k6lab:mcrtest2026@prometheus.mcr-test.com/api/v1/write"
+BASE_URL="http://84.46.251.26:3000"
+PROM_URL="https://prometheus.mcr-test.com/api/v1/write"
+PROM_USER="k6lab"
+PROM_PASS="mcrtest2026"
 
 case "$1" in
   smoke|01)    SCRIPT="01-smoke.js"; PUSH=false ;;
@@ -29,7 +31,13 @@ esac
 if [[ "${FORCE_DOCKER:-}" != "1" ]] && command -v k6 &>/dev/null; then
   ARGS=(-e "BASE_URL=$BASE_URL" -e "ATTENDEE=$ATTENDEE")
   if [[ "$PUSH" == "true" ]]; then
-    ARGS+=(-e "K6_PROMETHEUS_RW_SERVER_URL=$PROM_URL" --out experimental-prometheus-rw)
+    ARGS+=(
+      -e "K6_PROMETHEUS_RW_SERVER_URL=$PROM_URL"
+      -e "K6_PROMETHEUS_RW_USERNAME=$PROM_USER"
+      -e "K6_PROMETHEUS_RW_PASSWORD=$PROM_PASS"
+      -e "K6_PROMETHEUS_RW_TREND_STATS=p(95),p(99)"
+      --out experimental-prometheus-rw
+    )
   fi
   exec k6 run "${ARGS[@]}" "scripts/$SCRIPT"
 
@@ -39,7 +47,12 @@ elif command -v docker &>/dev/null; then
     -e "ATTENDEE=$ATTENDEE")
   K6_ARGS=(run)
   if [[ "$PUSH" == "true" ]]; then
-    DOCKER_ARGS+=(-e "K6_PROMETHEUS_RW_SERVER_URL=$PROM_URL")
+    DOCKER_ARGS+=(
+      -e "K6_PROMETHEUS_RW_SERVER_URL=$PROM_URL"
+      -e "K6_PROMETHEUS_RW_USERNAME=$PROM_USER"
+      -e "K6_PROMETHEUS_RW_PASSWORD=$PROM_PASS"
+      -e "K6_PROMETHEUS_RW_TREND_STATS=p(95),p(99)"
+    )
     K6_ARGS+=(--out experimental-prometheus-rw)
   fi
   K6_ARGS+=("/k6/scripts/$SCRIPT")
