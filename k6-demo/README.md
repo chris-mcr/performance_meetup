@@ -213,11 +213,16 @@ Alternatively, copy the `summary.json` output from your terminal and paste it in
 
 If `run.sh` doesn't work (e.g. Windows PowerShell without WSL), use these directly.
 
+> **Use the direct IP address, not the hostname.**
+> Under load, Traefik (the reverse proxy in front of the API) can become a bottleneck itself — adding latency and dropping connections before requests even reach the app. Bypassing it with the direct IP and port gives you a cleaner signal.
+>
+> Use `http://84.46.251.26:3000` as your `BASE_URL` in all commands below.
+
 ### Smoke test — native k6
 
 ```bash
 k6 run \
-  -e BASE_URL=https://k6-app.mcr-test.com \
+  -e BASE_URL=http://84.46.251.26:3000 \
   -e ATTENDEE=yourname \
   scripts/01-smoke.js
 ```
@@ -226,7 +231,7 @@ k6 run \
 
 ```bash
 k6 run \
-  -e BASE_URL=https://k6-app.mcr-test.com \
+  -e BASE_URL=http://84.46.251.26:3000 \
   -e ATTENDEE=yourname \
   -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mcrtest2026@prometheus.mcr-test.com/api/v1/write \
   -e K6_PROMETHEUS_RW_TREND_STATS="p(95),p(99)" \
@@ -241,7 +246,7 @@ Replace `02-load.js` with `03-stress.js` or `04-combined.js` as needed.
 ```bash
 docker run --rm \
   -v $(pwd):/k6 \
-  -e BASE_URL=https://k6-app.mcr-test.com \
+  -e BASE_URL=http://84.46.251.26:3000 \
   -e ATTENDEE=yourname \
   -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mcrtest2026@prometheus.mcr-test.com/api/v1/write \
   -e K6_PROMETHEUS_RW_TREND_STATS="p(95),p(99)" \
@@ -253,7 +258,7 @@ docker run --rm \
 ```powershell
 docker run --rm `
   -v "${PWD}:/k6" `
-  -e BASE_URL=https://k6-app.mcr-test.com `
+  -e BASE_URL=http://84.46.251.26:3000 `
   -e ATTENDEE=yourname `
   -e K6_PROMETHEUS_RW_SERVER_URL=https://k6lab:mcrtest2026@prometheus.mcr-test.com/api/v1/write `
   -e K6_PROMETHEUS_RW_TREND_STATS="p(95),p(99)" `
